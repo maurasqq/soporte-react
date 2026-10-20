@@ -172,21 +172,23 @@ function App() {
         </select>
       </section>
 
-      {/* Listado dinámico de solicitudes */}
-      <section aria-label="Listado de solicitudes">
-        <h2>Solicitudes</h2>
-        {!cargando && !error && visibles.length === 0 ? (
-          <p>No hay solicitudes que coincidan con los criterios de búsqueda y filtros.</p>
-        ) : (
-          visibles.map(s => (
-            <SolicitudCard
-              key={s.id}
-              {...s}
-              onResolver={resolverSolicitud}
-            />
-          ))
-        )}
-      </section>
+      {/* Listado dinámico de solicitudes: no se renderiza durante carga ni ante errores */}
+      {!cargando && !error && (
+        <section aria-label="Listado de solicitudes">
+          <h2>Solicitudes</h2>
+          {visibles.length === 0 ? (
+            <p>No hay solicitudes que coincidan con los criterios de búsqueda y filtros.</p>
+          ) : (
+            visibles.map(s => (
+              <SolicitudCard
+                key={s.id}
+                {...s}
+                onResolver={resolverSolicitud}
+              />
+            ))
+          )}
+        </section>
+      )}
     </main>
   )
 }
