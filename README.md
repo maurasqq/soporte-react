@@ -1,5 +1,6 @@
 # Sistema de Solicitudes de Soporte Técnico (`soporte-react`)
 
+**Integrantes:** Maura Quintanilla · Roger Vargas  
 **Asignatura:** Servicios Web · Unidad II: Desarrollo de Servicios Web con Spring Boot  
 **Práctica:** Laboratorio 10: React desde cero hasta consumo de APIs  
 **Carrera:** Ingeniería en Sistemas de Información · IV Año  
