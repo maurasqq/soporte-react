@@ -52,7 +52,7 @@ soporte-react/
 ## Instrucciones de Ejecución
 
 ### 1. Requisitos Previos
-- **Node.js:** Versión 18+ (recomendado 20+ o 24+) y npm.
+- **Node.js:** Versión `^20.19.0` o `>=22.12.0` (recomendado Node.js 24 LTS, requerido por Vite 8.3.4) y npm.
 - **Java Development Kit (JDK):** Versión 21.
 - **Apache Maven:** Versión 3.9+.
 
@@ -217,4 +217,4 @@ Las respuestas detalladas a las preguntas finales de la guía sobre:
 4. Diagnóstico de errores de CORS, 404 y caída de servidor.
 5. Mejoras de cara a un despliegue en producción.
 
-Se encuentran completamente desarrolladas en el archivo independiente **[REFLEXION.md](file:///c:/Users/maura/Desktop/1910/soporte-react/REFLEXION.md)**, preservado como requisito explícito de entrega académica.
+Se encuentran completamente desarrolladas en el archivo independiente **[REFLEXION.md](REFLEXION.md)**, preservado como requisito explícito de entrega académica.

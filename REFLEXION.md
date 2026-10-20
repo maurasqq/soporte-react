@@ -1,6 +1,6 @@
 # Reflexión Académica y Autoevaluación
 
-**Estudiante:** Mauro (Ingeniería en Sistemas de Información - IV Año)  
+**Estudiante:** Maura Quintanilla (Ingeniería en Sistemas de Información - IV Año)  
 **Asignatura:** Servicios Web · Unidad II: Desarrollo de Servicios Web con Spring Boot  
 **Práctica:** Laboratorio 10: React desde cero hasta consumo de APIs  
 **Proyecto:** Sistema de Solicitudes de Soporte Técnico (`soporte-react`)
@@ -17,12 +17,17 @@
 
 ## 2. ¿Por qué `useEffect` es adecuado para iniciar una consulta externa?
 
-El renderizado de componentes en React debe ser una función pura: no debe provocar efectos secundarios (side effects) como peticiones HTTP, suscripciones o mutaciones directas del DOM durante el cálculo del JSX.
+El renderizado de componentes en React debe ser una función pura: no debe provocar efectos secundarios (*side effects*) como peticiones HTTP, suscripciones o mutaciones directas del DOM durante el cálculo del JSX.
 
-`useEffect` es el hook idóneo porque:
-1. **Momento de ejecución controlado:** Se ejecuta de forma asíncrona inmediatamente después de que el componente ha sido montado y renderizado en el DOM, evitando bloquear la primera pintura visual (First Meaningful Paint).
-2. **Control de dependencias:** Mediante su arreglo de dependencias vacío (`[]`), garantiza que la petición HTTP hacia el backend se dispare una única vez al montar el componente, evitando bucles infinitos de consultas que ocurrirían si la petición estuviese en el cuerpo directo de la función.
-3. **Mecanismo de limpieza (Cleanup):** Permite retornar una función de limpieza para abortar peticiones en vuelo mediante `AbortController.abort()`, mitigando fugas de memoria y condiciones de carrera (race conditions) si el componente se desmonta antes de recibir la respuesta.
+`useEffect` es el hook idóneo por las siguientes razones:
+
+1. **Momento de ejecución controlado:** Se ejecuta de forma asíncrona inmediatamente después de que el componente ha sido montado y renderizado en el DOM, evitando bloquear la primera pintura visual (*First Meaningful Paint*).
+2. **Control de dependencias:** Mediante su arreglo de dependencias vacío (`[]`), garantiza que la petición HTTP hacia el backend se dispare una única vez durante el ciclo de vida del componente, evitando bucles infinitos de consultas que ocurrirían si la petición estuviese en el cuerpo directo de la función.
+3. **Mecanismo de limpieza (*cleanup function*) y `AbortController`:** Permite retornar una función de limpieza que cancela peticiones en vuelo mediante `controller.abort()`, mitigando fugas de memoria y condiciones de carrera (*race conditions*) si el componente se desmonta antes de recibir la respuesta.
+
+### Relación con `React.StrictMode`:
+En entorno de desarrollo, `React.StrictMode` ejecuta deliberadamente un ciclo adicional de montaje, desmontaje y remontaje de los componentes (`mount -> unmount -> mount`). Este comportamiento tiene como propósito estresar el código para detectar efectos secundarios no controlados o fugas de memoria. 
+Al realizar una petición asíncrona con `useEffect`, el primer ciclo monta el efecto, pero el desmontaje inmediato ejecuta la función de limpieza abortando la primera petición en red (`ERR_CANCELED`). El segundo ciclo ejecuta la petición que finalmente resuelve y actualiza el estado. Contar con `AbortController` asegura que la respuesta del primer ciclo abortado sea ignorada limpiamente y no intente actualizar el estado de un componente desmontado, evitando confusiones con duplicaciones reales de registros en la base de datos o en el servidor.
 
 ---
 
