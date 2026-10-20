@@ -1,6 +1,6 @@
 # Reflexión Académica y Autoevaluación
 
-**Estudiante:** Maura Quintanilla (Ingeniería en Sistemas de Información - IV Año)  
+**Estudiantes:** Maura Quintanilla · Roger Vargas (Ingeniería en Sistemas de Información - IV Año)  
 **Asignatura:** Servicios Web · Unidad II: Desarrollo de Servicios Web con Spring Boot  
 **Práctica:** Laboratorio 10: React desde cero hasta consumo de APIs  
 **Proyecto:** Sistema de Solicitudes de Soporte Técnico (`soporte-react`)
