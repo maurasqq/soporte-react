@@ -1,20 +1,47 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { api } from './services/api'
 import SolicitudCard from './components/SolicitudCard'
 
-// Solicitudes iniciales para arranque en memoria
-const iniciales = [
-  { id: 1, titulo: 'Equipo no enciende', prioridad: 'Alta', estado: 'Pendiente' },
-  { id: 2, titulo: 'Instalar software', prioridad: 'Media', estado: 'En proceso' }
-]
-
 function App() {
-  const [solicitudes, setSolicitudes] = useState(iniciales)
+  const [solicitudes, setSolicitudes] = useState([])
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState('')
+
+  // Estados del formulario y filtros locales
   const [titulo, setTitulo] = useState('')
   const [prioridad, setPrioridad] = useState('Media')
   const [filtro, setFiltro] = useState('Todas')
   const [mensaje, setMensaje] = useState('')
 
-  // Registra una nueva solicitud validando el formulario
+  // Carga inicial de solicitudes desde el servicio REST de Spring Boot
+  useEffect(() => {
+    const controller = new AbortController()
+
+    async function cargar() {
+      try {
+        setCargando(true)
+        setError('')
+        const respuesta = await api.get('/solicitudes', {
+          signal: controller.signal
+        })
+        setSolicitudes(respuesta.data)
+      } catch (err) {
+        if (err.code !== 'ERR_CANCELED') {
+          setError('No fue posible consultar las solicitudes.')
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setCargando(false)
+        }
+      }
+    }
+
+    cargar()
+    // Cancela la petición pendiente al desmontar el componente
+    return () => controller.abort()
+  }, [])
+
+  // Agrega una nueva solicitud validando el formulario
   function agregar(e) {
     e.preventDefault()
     if (!titulo.trim()) {
@@ -27,20 +54,19 @@ function App() {
       prioridad,
       estado: 'Pendiente'
     }
-    // Actualiza la lista sin mutar el arreglo original
     setSolicitudes(actuales => [...actuales, nueva])
     setTitulo('')
     setMensaje('Solicitud agregada correctamente.')
   }
 
-  // Microreto B: actualiza el estado de la solicitud a 'Resuelta' sin mutar directamente el arreglo original
+  // Actualiza la solicitud a 'Resuelta' sin mutar directamente el arreglo original
   function resolverSolicitud(id) {
     setSolicitudes(actuales =>
       actuales.map(s => (s.id === id ? { ...s, estado: 'Resuelta' } : s))
     )
   }
 
-  // Microreto C: contador de pendientes como estado derivado (no requiere useState independiente)
+  // Contador de pendientes como estado derivado
   const totalPendientes = solicitudes.filter(s => s.estado === 'Pendiente').length
 
   // Filtra las solicitudes según el estado seleccionado
@@ -50,9 +76,19 @@ function App() {
 
   return (
     <main>
-      <h1>Gestión de solicitudes</h1>
-      <p>Total registradas: {solicitudes.length}</p>
-      <p>Solicitudes pendientes: {totalPendientes}</p>
+      <h1>Sistema de Gestión de Soporte</h1>
+
+      {/* Estados de carga y error del servicio REST */}
+      {cargando && <p role="status">Cargando solicitudes...</p>}
+      {error && <p role="alert">{error}</p>}
+
+      {/* Métricas y resumen */}
+      <section aria-label="Resumen de solicitudes">
+        <p>Total registradas: {solicitudes.length}</p>
+        <p>Solicitudes pendientes: {totalPendientes}</p>
+      </section>
+
+      {/* Formulario de registro */}
       <form onSubmit={agregar}>
         <label htmlFor="titulo">Descripción</label>
         <input
@@ -73,6 +109,8 @@ function App() {
         <button type="submit">Registrar</button>
       </form>
       <p role="status">{mensaje}</p>
+
+      {/* Filtro por estado */}
       <label htmlFor="filtro">Filtrar por estado</label>
       <select
         id="filtro"
@@ -84,8 +122,10 @@ function App() {
         <option>En proceso</option>
         <option>Resuelta</option>
       </select>
-      {visibles.length === 0 ? (
-        <p>No hay resultados.</p>
+
+      {/* Listado de solicitudes */}
+      {!cargando && !error && visibles.length === 0 ? (
+        <p>No hay solicitudes que coincidan con el filtro.</p>
       ) : (
         visibles.map(s => (
           <SolicitudCard
