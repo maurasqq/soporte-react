@@ -33,6 +33,16 @@ function App() {
     setMensaje('Solicitud agregada correctamente.')
   }
 
+  // Microreto B: actualiza el estado de la solicitud a 'Resuelta' sin mutar directamente el arreglo original
+  function resolverSolicitud(id) {
+    setSolicitudes(actuales =>
+      actuales.map(s => (s.id === id ? { ...s, estado: 'Resuelta' } : s))
+    )
+  }
+
+  // Microreto C: contador de pendientes como estado derivado (no requiere useState independiente)
+  const totalPendientes = solicitudes.filter(s => s.estado === 'Pendiente').length
+
   // Filtra las solicitudes según el estado seleccionado
   const visibles = solicitudes.filter(s =>
     filtro === 'Todas' || s.estado === filtro
@@ -42,6 +52,7 @@ function App() {
     <main>
       <h1>Gestión de solicitudes</h1>
       <p>Total registradas: {solicitudes.length}</p>
+      <p>Solicitudes pendientes: {totalPendientes}</p>
       <form onSubmit={agregar}>
         <label htmlFor="titulo">Descripción</label>
         <input
@@ -76,7 +87,13 @@ function App() {
       {visibles.length === 0 ? (
         <p>No hay resultados.</p>
       ) : (
-        visibles.map(s => <SolicitudCard key={s.id} {...s} />)
+        visibles.map(s => (
+          <SolicitudCard
+            key={s.id}
+            {...s}
+            onResolver={resolverSolicitud}
+          />
+        ))
       )}
     </main>
   )
