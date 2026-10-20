@@ -16,6 +16,9 @@ function App() {
   const [filtroEstado, setFiltroEstado] = useState('Todas')
   const [filtroPrioridad, setFiltroPrioridad] = useState('Todas')
 
+  // Reto 3 (Reto opcional seleccionado): Búsqueda robusta por descripción
+  const [busqueda, setBusqueda] = useState('')
+
   // Carga inicial de solicitudes desde el servicio REST de Spring Boot
   useEffect(() => {
     const controller = new AbortController()
@@ -75,12 +78,16 @@ function App() {
   const totalEnProceso = solicitudes.filter(s => s.estado === 'En proceso').length
   const totalResueltas = solicitudes.filter(s => s.estado === 'Resuelta').length
 
-  // Reto 1: Filtro combinado evaluando simultáneamente estado y prioridad
+  // Reto 1 y Reto 3: Filtrado combinado y búsqueda insensible a mayúsculas/minúsculas y espacios
   const visibles = solicitudes.filter(s => {
     const coincideEstado = filtroEstado === 'Todas' || s.estado === filtroEstado
     const coincidePrioridad =
       filtroPrioridad === 'Todas' || s.prioridad === filtroPrioridad
-    return coincideEstado && coincidePrioridad
+    const terminoBusqueda = busqueda.trim().toLowerCase()
+    const coincideBusqueda =
+      !terminoBusqueda || s.titulo.toLowerCase().includes(terminoBusqueda)
+
+    return coincideEstado && coincidePrioridad && coincideBusqueda
   })
 
   return (
@@ -125,9 +132,21 @@ function App() {
         <p role="status">{mensaje}</p>
       </section>
 
-      {/* Reto 1: Filtro combinado */}
-      <section aria-label="Filtros de solicitudes">
-        <h2>Filtro de Solicitudes</h2>
+      {/* Reto 1 y Reto 3: Panel de Búsqueda y Filtro Combinado */}
+      <section aria-label="Filtros y búsqueda de solicitudes">
+        <h2>Filtros y Búsqueda</h2>
+
+        {/* Reto 3: Campo de búsqueda robusta */}
+        <label htmlFor="busqueda">Buscar por descripción</label>
+        <input
+          id="busqueda"
+          type="search"
+          placeholder="Ej. encender, software..."
+          value={busqueda}
+          onChange={e => setBusqueda(e.target.value)}
+        />
+
+        {/* Reto 1: Filtros de estado y prioridad */}
         <label htmlFor="filtro-estado">Filtrar por estado</label>
         <select
           id="filtro-estado"
@@ -157,7 +176,7 @@ function App() {
       <section aria-label="Listado de solicitudes">
         <h2>Solicitudes</h2>
         {!cargando && !error && visibles.length === 0 ? (
-          <p>No hay solicitudes que coincidan con los filtros aplicados.</p>
+          <p>No hay solicitudes que coincidan con los criterios de búsqueda y filtros.</p>
         ) : (
           visibles.map(s => (
             <SolicitudCard
